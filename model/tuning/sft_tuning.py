@@ -5,8 +5,8 @@ from peft import LoraConfig
 from trl import SFTConfig, SFTTrainer
 
 MODEL_NAME = "./backend/models/LFM2.5-350M"
-DATA_PATH = "/backend/data/mridul_sft_dataset.jsonl"
-OUTPUT_DIR = "./backend/tunings/lfm2_350m_mridul_lora"
+DATA_PATH = "./data/mridul_sft_dataset.jsonl"
+OUTPUT_DIR = "./tunings/lfm2_350m_mridul_lora"
 
 
 class ProgressCallback(TrainerCallback):
