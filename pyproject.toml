@@ -1,0 +1,18 @@
+[project]
+name = "mridul-me"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "accelerate",
+    "datasets",
+    "gradio",
+    "huggingface-hub",
+    "mlx-lm",
+    "peft",
+    "pydantic",
+    "torch",
+    "trl",
+    "transformers",
+]

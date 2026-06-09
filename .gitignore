@@ -1,0 +1,18 @@
+# I dont know why these are here
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# privacy matters still
+_chat.txt
+mridul_sft_dataset.json
+mridul_sft_dataset.jsonl
+
+# remove bloating model files
+model/backend/models
