@@ -13,6 +13,17 @@ wheels/
 _chat.txt
 mridul_sft_dataset.json
 mridul_sft_dataset.jsonl
+# hinglish datasets
+hinglish_chat_chunk.jsonl
+hinglish_cpt_combined.jsonl
+HinglishData1.txt
+HinglishData2.txt
+HinglishData3.txt
+HinglishData4.txt
+HinglishData5.txt
+
+
 
 # remove bloating model files
 model/backend/models
+tunings

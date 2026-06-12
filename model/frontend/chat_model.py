@@ -23,6 +23,11 @@ def parse_args():
         help="Hardware/backend to run the model on.",
     )
     parser.add_argument(
+        "--adapter",
+        default=None,
+        help="Optional local LoRA adapter path from model/tunings/.",
+    )
+    parser.add_argument(
         "--host",
         default="127.0.0.1",
         help="Host for the frontend server.",
@@ -64,6 +69,7 @@ def build_runner(args) -> ModelRunner:
     config = ModelConfig(
         model_id=args.model,
         backend=args.backend,
+        adapter_path=args.adapter,
         max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
         top_k=args.top_k,
@@ -94,7 +100,7 @@ def build_messages(history, message: str):
     return messages
 
 
-def create_app(runner: ModelRunner, backend: Backend, model_name: str):
+def create_app(runner: ModelRunner, backend: Backend, model_name: str, adapter_path: str | None):
     def normalize_reply(reply):
         if isinstance(reply, str):
             return reply
@@ -126,6 +132,8 @@ def create_app(runner: ModelRunner, backend: Backend, model_name: str):
         return history, ""
 
     description = f"Model: {model_name} | Backend: {backend}"
+    if adapter_path:
+        description += f" | Adapter: {adapter_path}"
 
     with gr.Blocks(title="Mridul ME") as app:
         gr.Markdown(description)
@@ -163,7 +171,7 @@ def create_app(runner: ModelRunner, backend: Backend, model_name: str):
 def main():
     args = parse_args()
     runner = build_runner(args)
-    app = create_app(runner, args.backend, args.model)
+    app = create_app(runner, args.backend, args.model, args.adapter)
     app.launch(server_name=args.host, server_port=args.port)
 
 

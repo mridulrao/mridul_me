@@ -9,6 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 class ModelConfig(BaseModel):
     model_id: str = "LiquidAI/LFM2.5-350M"
     backend: Backend
+    adapter_path: str | None = None
     dtype: str = "bfloat16"
     max_new_tokens: int = 256
     temperature: float = 0.1
@@ -25,6 +26,9 @@ class ModelRunner:
         self.model_source, self.local_files_only = self._resolve_model_source(
             config.model_id
         )
+        self.adapter_source = None
+        if config.adapter_path:
+            self.adapter_source, _ = self._resolve_model_source(config.adapter_path)
 
         if config.backend == "mlx":
             self._load_mlx()
@@ -59,11 +63,18 @@ class ModelRunner:
     def _load_mlx(self):
         from mlx_lm import load
 
+        if self.adapter_source:
+            raise ValueError(
+                "MLX adapter loading is not supported in this loader yet. "
+                "Use the base model only, or merge/convert the adapter first."
+            )
+
         # MLX-optimized checkpoint for Apple Silicon
         self.model, self.tokenizer = load(self.model_source)
 
     def _load_cuda(self):
         import torch
+        from peft import PeftModel
         from transformers import AutoTokenizer, AutoModelForCausalLM
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -77,10 +88,17 @@ class ModelRunner:
             torch_dtype=torch.bfloat16,
             # attn_implementation="flash_attention_2",  # enable if installed
         )
+        if self.adapter_source:
+            self.model = PeftModel.from_pretrained(
+                self.model,
+                self.adapter_source,
+                local_files_only=True,
+            )
         self.model.eval()
 
     def _load_cpu(self):
         import torch
+        from peft import PeftModel
         from transformers import AutoTokenizer, AutoModelForCausalLM
 
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -93,6 +111,12 @@ class ModelRunner:
             torch_dtype=torch.float32,
             device_map="cpu",
         )
+        if self.adapter_source:
+            self.model = PeftModel.from_pretrained(
+                self.model,
+                self.adapter_source,
+                local_files_only=True,
+            )
         self.model.eval()
 
     def chat(self, messages: List[Dict[str, str]]) -> str:
